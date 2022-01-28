@@ -20,3 +20,6 @@ app.post('/login', (req, res) => {
 })
 
 app.listen(port, () => {});
+
+// Authorization (auth) = how many permissions you have, ex. Adminstrator privileges
+// Authentication (auth Z)= proving who you are
