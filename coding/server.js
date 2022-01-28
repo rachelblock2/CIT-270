@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const md5 = require("md5");
 
 const port = 3000;
 
@@ -12,7 +13,8 @@ app.get('/', (req, res) => {
 
 app.post('/login', (req, res) => { //Goes to page off of localhost
     console.log(JSON.stringify(req.body)); //reads json req from loginscript
-    if (req.body.userName ==="rachellofgran" && req.body.password === "rachie10!") { //checks username and password
+    let password = md5(req.body.password);
+    if (req.body.userName ==="rachellofgran" && password === "5bf5ed97b6d7f58c4a8f09eee51cb448") { //checks username and password
         res.send("Welcome!");
     } else {
         res.send("Who are you?");
