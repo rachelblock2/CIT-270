@@ -1,6 +1,8 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+const https = require('https');
+const fs = require('fs')
 
+const bodyParser = require("body-parser");
 const md5 = require("md5");
 
 const port = 3000;
@@ -9,8 +11,15 @@ const app = express();
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-    res.send("Hello Browser!");
+    res.send("Hello HTTPS!");
 });
+
+https.createServer({
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.cert')
+  }, app).listen(port, () => {
+    console.log('Listening...')
+  })
 
 app.post('/login', (req, res) => { //Goes to page off of localhost
     console.log(JSON.stringify(req.body)); //reads json req from loginscript
@@ -22,7 +31,7 @@ app.post('/login', (req, res) => { //Goes to page off of localhost
     }
 })
 
-app.listen(port, () => {});
+// app.listen(port, () => {});
 
 // Authorization (auth) = how many permissions you have, ex. Adminstrator privileges
 // Authentication (auth Z)= proving who you are
