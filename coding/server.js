@@ -11,6 +11,8 @@ const app = express();
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+let invalidLoginAttempts = 0;
+
 app.get('/', (req, res) => {
     res.send("Hello HTTPS!");
 });
@@ -26,9 +28,13 @@ https.createServer({
 app.post('/login', (req, res) => { //Goes to page off of localhost
     console.log(JSON.stringify(req.body)); //reads json req from loginscript
     let password = md5(req.body.password);
-    if (req.body.userName ==="rachellofgran" && password === "8b96c177b8e8ea707ebe7ede3511f6e3") { //checks username and password
+    if (invalidLoginAttempts >= 5) {
+        res.status(401).send("Too many password attempts. You have been locked out my guy.");
+    }else if (req.body.userName ==="rachellofgran" && password === "8b96c177b8e8ea707ebe7ede3511f6e3") { //checks username and password
         res.send("Welcome!");
     } else {
+        invalidLoginAttempts++;
+        res.status(403);
         res.send("Who are you?");
     }
 })

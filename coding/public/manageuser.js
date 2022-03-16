@@ -1,86 +1,103 @@
 //© 2021 Sean Murdock
 
+// const res = require("express/lib/response");
+
 let userName = "";
 let password = "";
 let verifypassword = "";
-let passwordRegEx=/((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%!]).{6,40})/;
+let passwordRegEx = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%!]).{6,40})/;
 
-function setusername(){
+function setusername() {
     userName = $("#username").val();
 }
 
-function setuserpassword(){
+function setuserpassword() {
     password = $("#password").val();
-    var valid=passwordRegEx.exec(password);
-    if (!valid){
+    var valid = passwordRegEx.exec(password);
+    if (!valid) {
         alert('Must be 6 digits, upper, lower, number, and symbol');
     }
 }
 
-function setverifypassword(){
+function setverifypassword() {
     verifypassword = $("#verifypassword").val();
-    if (verifypassword!=password){
+    if (verifypassword != password) {
         alert('Passwords must be entered the same twice');
     }
 }
 
-function savetoken(token){
-// whatever passes as token should save into local storage
-    if (window.localStorage){
-     localStorage.setItem("token", token);
+function savetoken(token) {
+    // whatever passes as token should save into local storage
+    if (window.localStorage) {
+        localStorage.setItem("token", token);
     }
 
 }
 
-function checkexpiredtoken(token){
-// read token from local storage - check with ajax call
-    if(window.localStorage){
-    usertoken = localStorage.getItem("token");
-    $.ajax({
-       type: 'GET',
-        url: '/validate/'+token,
-        data: JSON.stringify({usertoken}),
-        success: function(data){savetoken(data)},
-        contentType: "application/text",
-        dataType: 'text' })
+function checkexpiredtoken(token) {
+    // read token from local storage - check with ajax call
+    if (window.localStorage) {
+        usertoken = localStorage.getItem("token");
+        $.ajax({
+            type: 'GET',
+            url: '/validate/' + token,
+            data: JSON.stringify({
+                usertoken
+            }),
+            success: function (data) {
+                savetoken(data)
+            },
+            contentType: "application/text",
+            dataType: 'text'
+        })
     }
 }
 
-function userlogin(){
+function userlogin() {
     setuserpassword();
     setusername();
     $.ajax({
         type: 'POST',
         url: '/login',
-        data: JSON.stringify({userName, password}),
-        success: function(data) {
-            window.location.href = "/timer.html#"+data;//add the token to the url
+        data: JSON.stringify({
+            userName,
+            password
+        }),
+        success: function (data) {
+            window.location.href = "/timer.html#" + data; //add the token to the url
         },
-        contentType: "application/text",
-        dataType: 'text'
+        contentType: "application/json",
+        dataType: 'text',
+        error: function (data, textStatus, xhr) {
+            alert('Incorrect Password.');
+            if (textStatus === 401) {
+                alert('Too many password attempts. You have locked yourself out my guy.');
+            }
+        }
     });
 
 }
 
-function readonlyforms(formid){
+function readonlyforms(formid) {
     form = document.getElementById(formid);
     elements = form.elements;
     for (i = 0, len = elements.length; i < len; ++i) {
-    elements[i].readOnly = true;
+        elements[i].readOnly = true;
     }
     createbutton();
 }
- function pwsDisableInput( element, condition ) {
-        if ( condition == true ) {
-            element.disabled = true;
 
-        } else {
-            element.removeAttribute("disabled");
-        }
+function pwsDisableInput(element, condition) {
+    if (condition == true) {
+        element.disabled = true;
 
- }
+    } else {
+        element.removeAttribute("disabled");
+    }
 
-function createbutton(){
+}
+
+function createbutton() {
     var button = document.createElement("input");
     button.type = "button";
     button.value = "OK";
@@ -89,35 +106,47 @@ function createbutton(){
 }
 
 
-function createuser(){
+function createuser() {
     $.ajax({
         type: 'POST',
         url: '/user',
-        data: JSON.stringify({userName, 'email': userName, password, 'verifyPassword': vpwd, 'accountType':'Personal'}),//we are using the email as the user name
-        success: function(data) { alert(data);
-//        readonlyforms("newUser");
-//        alert(readonlyforms("newUser"));
-        window.location.href = "/index.html"},
+        data: JSON.stringify({
+            userName,
+            'email': userName,
+            password,
+            'verifyPassword': vpwd,
+            'accountType': 'Personal'
+        }), //we are using the email as the user name
+        success: function (data) {
+            alert(data);
+            //        readonlyforms("newUser");
+            //        alert(readonlyforms("newUser"));
+            window.location.href = "/index.html"
+        },
         contentType: "application/text",
         dataType: 'text'
     });
 }
 
-function getstephistory(){
-      $.ajax({
-            type: 'POST',
-            url: '/stephistory',
-            data: JSON.stringify({userName}),
-            success: function(data) { alert(data);
+function getstephistory() {
+    $.ajax({
+        type: 'POST',
+        url: '/stephistory',
+        data: JSON.stringify({
+            userName
+        }),
+        success: function (data) {
+            alert(data);
             json = $.parseJSON(data);
-            $('#results').html(json.name+' Total Steps: ' + json.stepTotal)},
-            contentType: "application/text",
-            dataType: 'text'
-        });
+            $('#results').html(json.name + ' Total Steps: ' + json.stepTotal)
+        },
+        contentType: "application/text",
+        dataType: 'text'
+    });
 }
 
-var enterFunction = (event) =>{
-    if (event.keyCode === 13){
+var enterFunction = (event) => {
+    if (event.keyCode === 13) {
         event.preventDefault();
         $("#loginbtn").click();
     }
